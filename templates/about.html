@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}परिचय — About{% endblock %}
+{% block body %}
+<h1>परिचय <small>· About this site</small></h1>
+<div class="card prose">
+  <p>यह साइट मीणा समाज की दो पुस्तकों को खोजने योग्य और पढ़ने योग्य रूप में एक साथ लाती है:</p>
+  <ol>
+    <li><b>{{ booklet.title }}</b> — {{ booklet.compilers|join(' व ') }}; प्रकाशक {{ booklet.publisher }}। गोत्रों की पूरी सूची पृष्ठ-संख्या सहित यहाँ टाइप की गई है।</li>
+    <li><b>मीणा-इतिहास</b> — रावत सारस्वत; प्रकाशक भूथालाल नाढला, बस्सी (जयपुर), सं. २०२५। इसका पाठ OCR (कम्प्यूटर द्वारा पढ़ा गया) है, इसलिए हर पृष्ठ के साथ मूल स्कैन भी दिखाया गया है।</li>
+  </ol>
+  <h3>कैसे खोजें</h3>
+  <ul>
+    <li>गोत्र हिन्दी (<i>चौहान</i>) या अंग्रेज़ी अक्षरों (<i>Chauhan, Chouhan</i>) में लिखें — अलग-अलग वर्तनी भी मिल जाती है।</li>
+    <li>हर गोत्र के पृष्ठ पर दिखता है कि वह पुस्तिका के किस पृष्ठ पर है और मीणा-इतिहास में कहाँ-कहाँ उसका उल्लेख है।</li>
+    <li>इतिहास में ← → कुंजियों से पन्ने पलटें, या पुस्तक की पृष्ठ-संख्या से सीधे जाएँ।</li>
+  </ul>
+  <h3>English</h3>
+  <p>This site brings together two Meena community books: the <i>Meena Kshatriya Gotra Sangrah</i> (a list of gotras, hand-typed from the scan with page numbers) and Rawat Saraswat's <i>Meena Itihas</i> (1968), whose text was read by OCR and is shown next to the original page scans. Gotras can be searched in Hindi or English letters; each gotra links to its page in the booklet and to the pages of the history that mention it.</p>
+  <p class="muted">गलती दिखे तो सुधार के लिए GitHub पर issue खोलें: गोत्रों का पाठ <code>data/gotra-pages/page-NN.txt</code> में है।</p>
+</div>
+{% endblock %}

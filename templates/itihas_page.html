@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}मीणा-इतिहास {% if p.book %}पृ. {{ p.book }}{% endif %}{% endblock %}
+{% block body %}
+<div class="crumbs"><a href="{{ url_for('itihas_home') }}">मीणा-इतिहास</a>{% if ch %} › <a href="{{ url_for('itihas_page', pdf=ch.pdf) }}">{% if ch.num is number %}अध्याय {{ ch.num }}: {% elif ch.num %}{{ ch.num }}: {% endif %}{{ ch.title }}</a>{% endif %}</div>
+<div class="pager">
+  {% if prev %}<a class="btn ghost" rel="prev" href="{{ url_for('itihas_page', pdf=prev) }}">← पिछला</a>{% else %}<span></span>{% endif %}
+  <b>{% if p.book %}पृष्ठ {{ p.book }}{% elif p.plate %}चित्र-पृष्ठ (photo plate){% else %}प्रारम्भिक पृष्ठ{% endif %}</b>
+  <form action="{{ url_for('itihas_book_page') }}"><input name="n" type="number" min="1" max="294" placeholder="पृष्ठ"><button class="btn ghost">जाएँ</button></form>
+  {% if next %}<a class="btn" rel="next" href="{{ url_for('itihas_page', pdf=next) }}">अगला →</a>{% endif %}
+</div>
+<div class="tabs"><button data-show="scan" class="on">मूल पृष्ठ / Scan</button><button data-show="text">पाठ / Text</button></div>
+<div class="reader" data-show="scan">
+  <div class="pane-scan"><img class="scan itihas" src="{{ url_for('scan', book='itihas', pdf=p.pdf) }}" alt="पृष्ठ {{ p.book or p.pdf }}"></div>
+  <div class="pane-text card">
+    <div class="muted" style="font-size:.8rem;margin-bottom:6px">OCR पाठ — अशुद्धियाँ सम्भव हैं, मूल पृष्ठ देखें · machine-read text, check the scan</div>
+    {% if p.text %}
+    <div class="ocr">{% for x, m in parts %}{% if m %}<mark>{{ x }}</mark>{% else %}{{ x }}{% endif %}{% endfor %}</div>
+    {% else %}<p class="muted">इस पृष्ठ पर पढ़ने योग्य पाठ नहीं है (चित्र या वंश-वृक्ष)।</p>{% endif %}
+  </div>
+</div>
+<div class="pager">
+  {% if prev %}<a class="btn ghost" href="{{ url_for('itihas_page', pdf=prev) }}">← पिछला</a>{% else %}<span></span>{% endif %}
+  <small class="muted">स्कैन पृष्ठ {{ p.pdf }} / {{ last }} · ← → कुंजियों से पन्ने पलटें</small>
+  {% if next %}<a class="btn" href="{{ url_for('itihas_page', pdf=next) }}">अगला →</a>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}मीना क्षत्रिय गोत्र संग्रह — पुस्तिका{% endblock %}
+{% block body %}
+<div class="grid g2">
+  <div>
+    <h1>{{ booklet.title }}</h1>
+    <p>संग्रहकर्ता: <b>{{ booklet.compilers|join(' व ') }}</b><br>
+      प्रकाशक: {{ booklet.publisher }}<br>
+      मुद्रक: {{ booklet.printer }}<br>
+      {{ booklet.edition }} · मूल्य: {{ booklet.price }}</p>
+    <p class="muted">A pocket booklet listing the gotras (clan names) of the Meena Kshatriya community in Hindi alphabetical order, published on Matsyavatar Jayanti (Chaitra Shukla 3, Vikram Samvat 2057, about 2000 CE) so that Meenas everywhere can recognise each other's gotras.</p>
+    <p><a class="btn" href="{{ url_for('gotra_list') }}">गोत्र सूची (खोज सहित)</a> <a class="btn ghost" href="{{ url_for('booklet_page', pdf=1) }}">मूल पुस्तिका पलटें</a></p>
+  </div>
+  <a href="{{ url_for('booklet_page', pdf=1) }}"><img class="thumb" style="max-width:280px" src="{{ url_for('scan', book='gotra', pdf=1) }}" alt="मुखपृष्ठ"></a>
+</div>
+
+<h2>प्रेरणा स्रोत</h2>
+<div class="grid g3">
+  {% for p in booklet.people %}<div class="card"><b>{{ p.name }}</b><br><small>{{ p.place }}</small></div>{% endfor %}
+</div>
+
+<h2 style="margin-top:24px">दो शब्द <small>· Foreword</small></h2>
+<div class="card prose">
+  {% for para in booklet.foreword %}<p>{{ para }}</p>{% endfor %}
+  <p style="text-align:right">— {{ booklet.signed }}</p>
+  <p class="saying"><b>नोट:</b> {{ booklet.note }}</p>
+  <p class="muted"><a href="{{ url_for('booklet_page', pdf=3) }}">मूल पृष्ठ देखें →</a></p>
+</div>
+
+<h2 id="ratna" style="margin-top:24px">अमूल्य रत्न <small>· Precious gems</small></h2>
+<div class="grid g2">
+  {% for s in booklet.sayings %}
+  <blockquote class="saying card"><b>({{ loop.index }})</b> {{ s.hi }}<div class="en">{{ s.en }}</div></blockquote>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block body %}
+<section class="hero">
+  <div>
+    <span class="pill">दो पुस्तकें · Two books</span>
+    <h1>मीणा जाति के गोत्र और इतिहास</h1>
+    <p>मीना क्षत्रिय जाति के <b>{{ n_gotras }}</b> गोत्र खोजें, और रावत सारस्वत की पुस्तक <em>मीणा-इतिहास</em> पृष्ठ-दर-पृष्ठ पढ़ें।
+      <br><small>Look up any of {{ n_gotras }} Meena gotras (in Hindi or English letters) and read the 1968 history of the Meena people page by page.</small></p>
+    <form class="bigsearch" action="{{ url_for('search') }}">
+      <input name="q" placeholder="अपना गोत्र लिखें — e.g. Chauhan, बारवाल, Sihara" autofocus>
+      <button class="btn">खोजें</button>
+    </form>
+    <div class="stats">
+      <div class="stat"><b>{{ n_gotras }}</b>गोत्र / gotras</div>
+      <div class="stat"><b>{{ chapters|selectattr('num')|list|length }}</b>अध्याय-परिशिष्ट / chapters</div>
+      <div class="stat"><b>{{ n_pages }}</b>इतिहास पृष्ठ / pages</div>
+      <div class="stat"><a href="{{ url_for('gotra_random') }}">🎲 कोई भी गोत्र</a><br><small>random gotra</small></div>
+    </div>
+  </div>
+  <div class="covers">
+    <a href="{{ url_for('booklet') }}"><img class="cover" src="{{ url_for('scan', book='gotra', pdf=1) }}" alt="मीना क्षत्रिय गोत्र संग्रह — cover"></a>
+    <a href="{{ url_for('itihas_home') }}"><img class="cover" src="{{ url_for('scan', book='itihas', pdf=1) }}" alt="मीणा-इतिहास — title page" style="background:#fff"></a>
+  </div>
+</section>
+
+<div class="grid g2">
+  <div class="card bookcard">
+    <h2><a href="{{ url_for('gotra_list') }}">मीना क्षत्रिय गोत्र संग्रह</a></h2>
+    <p class="muted">आचार्यमुनि मग्नसागर जी व नारायणसिंह जी नौरावत · प्रकाशक मदनसिंह दुदावत, सबलगढ़ · सं. २०५७ वि.</p>
+    <p>{{ booklet.foreword[0][:230] }}…</p>
+    <p><a class="btn" href="{{ url_for('gotra_list') }}">गोत्र सूची देखें</a> <a class="btn ghost" href="{{ url_for('booklet') }}">पुस्तिका पढ़ें</a></p>
+  </div>
+  <div class="card bookcard">
+    <h2><a href="{{ url_for('itihas_home') }}">मीणा-इतिहास</a></h2>
+    <p class="muted">लेखक रावत सारस्वत · प्रकाशक भूथालाल नाढला, बस्सी (जयपुर) · प्रथम संस्करण सं. २०२५ (1968)</p>
+    <p>राजस्थान में मीणा, मेर, मेव आदि नामों से ज्ञात मीणा जाति का ऐतिहासिक इतिवृत्त — मत्स्य से लेकर आमेर, खोह, मुगल, मराठा और अंग्रेज काल तक, और प्रमुख मीणा वंशों के वंश-वृक्ष।</p>
+    <ul class="toc">
+      {% for ch in chapters if ch.num %}{% if loop.index <= 6 %}
+      <li><span class="n">{{ ch.num is number and ('अध्याय ' ~ ch.num) or ch.num }}</span><a href="{{ url_for('itihas_page', pdf=ch.pdf) }}">{{ ch.title }}</a></li>
+      {% endif %}{% endfor %}
+    </ul>
+    <p><a class="btn" href="{{ url_for('itihas_home') }}">सभी अध्याय →</a></p>
+  </div>
+</div>
+
+<h2 style="margin-top:28px">अमूल्य रत्न <small>· Precious gems from the booklet</small></h2>
+<div class="grid g3">
+  {% for s in booklet.sayings[:6] %}
+  <blockquote class="saying card"><div>{{ s.hi }}</div><div class="en">{{ s.en }}</div></blockquote>
+  {% endfor %}
+</div>
+<p><a href="{{ url_for('booklet') }}#ratna">सभी १५ रत्न →</a></p>
+{% endblock %}

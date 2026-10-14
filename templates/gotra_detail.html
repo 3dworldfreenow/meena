@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ g.name }} गोत्र — Meena Gotra{% endblock %}
+{% block body %}
+<div class="crumbs"><a href="{{ url_for('gotra_list') }}">गोत्र</a> › <a href="{{ url_for('gotra_list', letter=g.letter) }}">{{ g.letter }}</a> › {{ g.name }}</div>
+<div class="grid g2">
+  <div>
+    <h1 class="gname">{{ g.name }}</h1>
+    <div class="roman">{{ g.roman|title }}</div>
+    {% if g.alt %}<p>अन्य रूप / also written: <b>{{ g.alt|join(', ') }}</b></p>{% endif %}
+    <p>मीना क्षत्रिय गोत्र संग्रह, <a href="{{ url_for('booklet_page', pdf=pdf_page) }}">पृष्ठ {{ g.page }}</a> पर दर्ज।
+      <br><small>Listed on page {{ g.page }} of the Meena Kshatriya Gotra Sangrah.</small></p>
+
+    <div class="card">
+      <h2>मीणा-इतिहास में उल्लेख <small>· in Meena Itihas</small></h2>
+      {% if mentions %}
+        <p class="muted">{{ mentions|length }} पृष्ठों पर “{{ g.name }}” शब्द मिला (OCR पाठ से)।</p>
+        <ul class="mentions">
+          {% for m in mentions[:40] %}
+          <li><a href="{{ url_for('itihas_page', pdf=m.page.pdf, hl=g.name) }}">{% if m.page.book %}पृष्ठ {{ m.page.book }}{% else %}चित्र-पृष्ठ{% endif %}</a>
+            <div class="snip">{{ m.snip[0] }}<mark>{{ m.snip[1] }}</mark>{{ m.snip[2] }}</div></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">इतिहास पुस्तक के पाठ में यह नाम नहीं मिला। (OCR की अशुद्धि के कारण कुछ उल्लेख छूट सकते हैं।)</p>
+      {% endif %}
+    </div>
+  </div>
+  <div>
+    <a href="{{ url_for('booklet_page', pdf=pdf_page) }}"><img class="thumb" loading="lazy" src="{{ url_for('scan', book='gotra', pdf=pdf_page) }}" alt="गोत्र संग्रह पृष्ठ {{ g.page }}"></a>
+    <p class="muted" style="font-size:.85rem">मूल पृष्ठ (स्कैन) — पृष्ठ {{ g.page }} ढूँढें।</p>
+    {% if alike %}
+    <div class="card"><h3>मिलते-जुलते उच्चारण <small>· sound alike</small></h3>
+      <ul class="gotras">{% for x in alike %}<li><a href="{{ url_for('gotra_detail', gid=x.id) }}">{{ x.name }}<small>{{ x.roman }}</small></a></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    <div class="card" style="margin-top:14px"><h3>सूची में आस-पास <small>· nearby in the list</small></h3>
+      <ul class="gotras">{% for x in near %}<li><a href="{{ url_for('gotra_detail', gid=x.id) }}">{{ x.name }}<small>{{ x.roman }}</small></a></li>{% endfor %}</ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

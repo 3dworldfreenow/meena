@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}मीणा-इतिहास — Meena Itihas{% endblock %}
+{% block body %}
+<div class="grid g2">
+  <div>
+    <h1>मीणा-इतिहास</h1>
+    <p><em>राजस्थान में मीणा, मेर, मेव आदि नामों से ज्ञात मीणा जाति का ऐतिहासिक इतिवृत्त</em></p>
+    <p>लेखक <b>रावत सारस्वत</b> · प्रकाशक <b>भूथालाल नाढला</b>, बस्सी (जिला जयपुर) · मुद्रक अजन्ता प्रिंटर्स, जयपुर · प्रथम संस्करण सं. २०२५ (1968) · मूल्य बारह रुपए पचास पैसे।</p>
+    <p class="muted">The 1968 history of the Meena people of Rajasthan by Rawat Saraswat: origins in the Matsya tradition, the Meena kingdoms of Amer, Khoh, Machi and Nahan, conflict with the Kachhwaha Rajputs, the Mughal, Maratha and British periods, society and culture, the 20th-century reform movement, and family trees of leading clans.</p>
+    <form class="filter" action="{{ url_for('search') }}">
+      <input name="q" placeholder="पुस्तक में खोजें: आमेर, खोह, चांदा, मत्स्य…">
+      <button class="btn">खोजें</button>
+    </form>
+    <form class="filter" action="{{ url_for('itihas_book_page') }}" style="margin-top:8px">
+      <span>पृष्ठ संख्या पर जाएँ</span><input name="n" type="number" min="1" max="294" style="width:7em"><button class="btn ghost">जाएँ</button>
+    </form>
+  </div>
+  <a href="{{ url_for('itihas_page', pdf=3) }}"><img class="thumb scan itihas" style="max-width:300px" src="{{ url_for('scan', book='itihas', pdf=3) }}" alt="विषय-क्रम"></a>
+</div>
+<h2 style="margin-top:22px">विषय-क्रम <small>· Contents</small></h2>
+<div class="card">
+<ul class="toc">
+  {% for ch in chapters %}
+  <li>
+    <span class="n">{% if ch.num is number %}अध्याय {{ ch.num }}{% elif ch.num %}{{ ch.num }}{% else %}&nbsp;{% endif %}</span>
+    <span><a href="{{ url_for('itihas_page', pdf=ch.pdf) }}">{{ ch.title }}</a><span class="en">{{ ch.title_en }}</span></span>
+    <span class="pg">{% if ch.book %}पृ. {{ ch.book }}{% endif %}</span>
+  </li>
+  {% endfor %}
+</ul>
+</div>
+{% endblock %}

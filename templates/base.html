@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}मीणा ग्रन्थ — Meena Books{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&family=Noto+Serif+Devanagari:wght@500;700&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="{{ url_for('home') }}"><span class="fish">🐟</span> मीणा ग्रन्थ <small>Meena Books</small></a>
+    <nav class="nav">
+      <a href="{{ url_for('gotra_list') }}" {% if request.endpoint and request.endpoint.startswith('gotra') %}class="on"{% endif %}>गोत्र <small>Gotras</small></a>
+      <a href="{{ url_for('itihas_home') }}" {% if request.endpoint and request.endpoint.startswith('itihas') %}class="on"{% endif %}>इतिहास <small>History</small></a>
+      <a href="{{ url_for('booklet') }}" {% if request.endpoint and request.endpoint.startswith('booklet') %}class="on"{% endif %}>पुस्तिका <small>Booklet</small></a>
+      <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="on"{% endif %}>परिचय <small>About</small></a>
+    </nav>
+    <form class="qs" action="{{ url_for('search') }}" autocomplete="off">
+      <input name="q" id="qs" placeholder="खोजें / Search: चौहान, Chauhan…" value="{{ q or '' }}" aria-label="Search">
+      <div class="suggest" id="suggest" hidden></div>
+    </form>
+    <button class="theme" id="theme" title="Light / dark" aria-label="Toggle theme">☾</button>
+  </div>
+</header>
+<main class="wrap">
+{% block body %}{% endblock %}
+</main>
+<footer class="foot wrap">
+  दो पुस्तकें, एक जगह: <em>मीना क्षत्रिय गोत्र संग्रह</em> और रावत सारस्वत कृत <em>मीणा-इतिहास</em> (सं. २०२५).
+  इतिहास का पाठ OCR से पढ़ा गया है, कुछ अशुद्धियाँ सम्भव हैं — मूल पृष्ठ हर जगह साथ दिया है।
+</footer>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}खोज: {{ q }}{% endblock %}
+{% block body %}
+<h1>खोज <small>· “{{ q }}”</small></h1>
+<form class="filter" action="{{ url_for('search') }}"><input name="q" value="{{ q }}" placeholder="गोत्र या कोई शब्द / a gotra or any word"><button class="btn">खोजें</button></form>
+{% if q %}
+<div class="grid g2" style="margin-top:16px">
+  <div class="card">
+    <h2>गोत्र <small>· {{ gotras|length }}{% if gotras|length >= 300 %}+{% endif %}</small></h2>
+    {% if gotras %}<ul class="gotras">{% for g in gotras %}<li><a href="{{ url_for('gotra_detail', gid=g.id) }}">{{ g.name }}<small>{{ g.roman }} · पृ. {{ g.page }}</small></a></li>{% endfor %}</ul>
+    {% else %}<p class="muted">कोई गोत्र नहीं मिला।</p>{% endif %}
+  </div>
+  <div class="card">
+    <h2>मीणा-इतिहास में <small>· {{ hits|length }}{% if hits|length >= 200 %}+{% endif %} उल्लेख</small></h2>
+    {% if hits %}
+    <ul class="hits">{% for h in hits %}<li><a href="{{ url_for('itihas_page', pdf=h.page.pdf, hl=q) }}">{% if h.page.book %}पृष्ठ {{ h.page.book }}{% else %}स्कैन {{ h.page.pdf }}{% endif %}</a>
+      <div class="snip">{{ h.snip[0] }}<mark>{{ h.snip[1] }}</mark>{{ h.snip[2] }}</div></li>{% endfor %}</ul>
+    {% elif q is string and q.isascii() %}<p class="muted">इतिहास पुस्तक हिन्दी में है — शब्द देवनागरी में लिखें (जैसे आमेर, मत्स्य)।</p>
+    {% else %}<p class="muted">कोई उल्लेख नहीं मिला।</p>{% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
