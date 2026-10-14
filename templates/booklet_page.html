@@ -9,7 +9,7 @@
 </div>
 <div class="tabs"><button data-show="scan" class="on">स्कैन</button><button data-show="text">गोत्र ({{ gotras|length }})</button></div>
 <div class="reader {% if not gotras %}single{% endif %}" data-show="scan">
-  <div class="pane-scan"><img class="scan" src="{{ url_for('scan', book='gotra', pdf=pdf) }}" alt="स्कैन {{ pdf }}"></div>
+  <div class="pane-scan"><img class="scan" src="{{ url_for('scan', book='gotra', ext='jpg', pdf=pdf) }}" alt="स्कैन {{ pdf }}"></div>
   {% if gotras %}
   <div class="pane-text card">
     <h3>इन पृष्ठों के गोत्र <small>· gotras on these pages</small></h3>

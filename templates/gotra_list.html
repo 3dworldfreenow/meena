@@ -1,20 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}गोत्र सूची — Meena Gotras{% endblock %}
+{% block title %}गोत्र सूची: {{ letter }} — Meena Gotras{% endblock %}
 {% block body %}
 <h1>मीना क्षत्रिय गोत्र सूची <small>· {{ n_gotras }} gotras</small></h1>
-<form class="filter" action="{{ url_for('gotra_list') }}">
-  <input name="q" value="{{ q }}" placeholder="पूरी सूची में खोजें / search all: Meena, Sisodia, जारवाल">
+<form class="filter" action="{{ url_for('search') }}">
+  <input name="q" placeholder="पूरी सूची में खोजें / search all: Meena, Sisodia, जारवाल">
   <button class="btn">खोजें</button>
-  {% if q %}<a href="{{ url_for('gotra_list') }}">✕ साफ़ करें</a>{% endif %}
 </form>
 <nav class="letters" aria-label="वर्णमाला">
-  {% for l in letters %}<a href="{{ url_for('gotra_list', letter=l) }}" {% if l == letter and not q %}class="on"{% endif %}>{{ l }}</a>{% endfor %}
+  {% for l in letters %}<a href="{{ url_for('gotra_letter', letter=l) }}" {% if l == letter %}class="on"{% endif %}>{{ l }}</a>{% endfor %}
 </nav>
-{% if q %}
-  <p><b id="count">{{ items|length }}</b> परिणाम “{{ q }}” के लिए {% if not items %}— कोई गोत्र नहीं मिला। हिन्दी में लिखकर देखें, या <a href="{{ url_for('search', q=q) }}">इतिहास में खोजें</a>।{% endif %}</p>
-{% else %}
-  <div class="filter" style="margin-bottom:10px"><input id="listfilter" placeholder="इस अक्षर में छाँटें / filter this letter"> <small><b id="count">{{ items|length }}</b> गोत्र</small></div>
-{% endif %}
+<div class="filter" style="margin-bottom:10px"><input id="listfilter" placeholder="‘{{ letter }}’ में छाँटें / filter this letter"> <small><b id="count">{{ items|length }}</b> गोत्र</small></div>
 <ul class="gotras">
   {% for g in items %}
   <li><a href="{{ url_for('gotra_detail', gid=g.id) }}">{{ g.name }}{% if g.alt %} <small>({{ g.alt|join(', ') }})</small>{% endif %}<small>{{ g.roman }} · पृ. {{ g.page }}</small></a></li>

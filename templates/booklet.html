@@ -11,7 +11,7 @@
     <p class="muted">A pocket booklet listing the gotras (clan names) of the Meena Kshatriya community in Hindi alphabetical order, published on Matsyavatar Jayanti (Chaitra Shukla 3, Vikram Samvat 2057, about 2000 CE) so that Meenas everywhere can recognise each other's gotras.</p>
     <p><a class="btn" href="{{ url_for('gotra_list') }}">गोत्र सूची (खोज सहित)</a> <a class="btn ghost" href="{{ url_for('booklet_page', pdf=1) }}">मूल पुस्तिका पलटें</a></p>
   </div>
-  <a href="{{ url_for('booklet_page', pdf=1) }}"><img class="thumb" style="max-width:280px" src="{{ url_for('scan', book='gotra', pdf=1) }}" alt="मुखपृष्ठ"></a>
+  <a href="{{ url_for('booklet_page', pdf=1) }}"><img class="thumb" style="max-width:280px" src="{{ url_for('scan', book='gotra', ext='jpg', pdf=1) }}" alt="मुखपृष्ठ"></a>
 </div>
 
 <h2>प्रेरणा स्रोत</h2>

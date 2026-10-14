@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}{{ g.name }} गोत्र — Meena Gotra{% endblock %}
 {% block body %}
-<div class="crumbs"><a href="{{ url_for('gotra_list') }}">गोत्र</a> › <a href="{{ url_for('gotra_list', letter=g.letter) }}">{{ g.letter }}</a> › {{ g.name }}</div>
+<div class="crumbs"><a href="{{ url_for('gotra_list') }}">गोत्र</a> › <a href="{{ url_for('gotra_letter', letter=g.letter) }}">{{ g.letter }}</a> › {{ g.name }}</div>
 <div class="grid g2">
   <div>
     <h1 class="gname">{{ g.name }}</h1>
@@ -26,7 +26,7 @@
     </div>
   </div>
   <div>
-    <a href="{{ url_for('booklet_page', pdf=pdf_page) }}"><img class="thumb" loading="lazy" src="{{ url_for('scan', book='gotra', pdf=pdf_page) }}" alt="गोत्र संग्रह पृष्ठ {{ g.page }}"></a>
+    <a href="{{ url_for('booklet_page', pdf=pdf_page) }}"><img class="thumb" loading="lazy" src="{{ url_for('scan', book='gotra', ext='jpg', pdf=pdf_page) }}" alt="गोत्र संग्रह पृष्ठ {{ g.page }}"></a>
     <p class="muted" style="font-size:.85rem">मूल पृष्ठ (स्कैन) — पृष्ठ {{ g.page }} ढूँढें।</p>
     {% if alike %}
     <div class="card"><h3>मिलते-जुलते उच्चारण <small>· sound alike</small></h3>

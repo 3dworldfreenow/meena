@@ -5,10 +5,9 @@ Run:  pip install -r requirements.txt  &&  python app.py   ->  http://127.0.0.1:
 import json
 import os
 import re
-from difflib import SequenceMatcher
 from functools import lru_cache
 
-from flask import Flask, abort, jsonify, render_template, request, send_file, url_for
+from flask import Flask, abort, jsonify, redirect, render_template, request, send_file, url_for
 
 from meena.translit import deva_key, sound_key, to_roman
 
@@ -59,54 +58,10 @@ def chapter_of(pdf_page):
 
 # ---------- search ----------
 
-def match_gotras(q, limit=None):
-    """Hindi input matches spelling; Roman input matches by sound (Chouhan = चौहान)."""
-    q = q.strip()
-    if not q:
-        return []
-    if re.search(r'[ऀ-ॿ]', q):
-        k = deva_key(q)
-        exact = [g for g in GOTRAS if g['dkey'] == k]
-        starts = [g for g in GOTRAS if g['dkey'].startswith(k) and g not in exact]
-        inside = [g for g in GOTRAS if k in g['dkey'] and g not in exact and g not in starts]
-    else:
-        ql = re.sub(r'\s+', '', q.lower()).replace('aa', 'a').replace('ee', 'i').replace('oo', 'u')
-        k = sound_key(q)
-        def close(g):  # spelling closeness to what was typed, for ordering
-            return -SequenceMatcher(None, ql, g['roman'].replace(' ', '')).ratio()
-        exact = sorted((g for g in GOTRAS if g['roman'].replace(' ', '') == ql or (k and g['skey'] == k)), key=close)
-        starts = sorted((g for g in GOTRAS if g not in exact and (g['roman'].startswith(ql) or (len(k) > 1 and g['skey'].startswith(k)))), key=close)
-        inside = [g for g in GOTRAS if g not in exact and g not in starts and ql in g['roman'].replace(' ', '')]
-    res = exact + starts + inside
-    return res[:limit] if limit else res
-
-
 def snippet(text, pos, length, width=90):
     a = max(0, pos - width)
     b = min(len(text), pos + length + width)
     return (('…' if a else '') + text[a:pos], text[pos:pos + length], text[pos + length:b] + ('…' if b < len(text) else ''))
-
-
-def search_itihas(q, limit=200):
-    """Plain substring search over the OCR text of Meena Itihas."""
-    q = q.strip()
-    if len(q) < 2:
-        return []
-    if not re.search(r'[ऀ-ॿ]', q):
-        return []  # the history book is Hindi; Roman queries go through the gotra list
-    hits = []
-    for p in PAGES:
-        t = p['text']
-        start = 0
-        while True:
-            i = t.find(q, start)
-            if i < 0:
-                break
-            hits.append({'page': p, 'snip': snippet(t, i, len(q))})
-            start = i + len(q)
-            if len(hits) >= limit:
-                return hits
-    return hits
 
 
 def itihas_mentions(name):
@@ -124,10 +79,13 @@ def itihas_mentions(name):
 
 
 # ---------- pages ----------
+# Every page has a plain path ending in "/", so tools/build_static.py can save the
+# whole site as files for GitHub Pages. Search runs in the browser (static/app.js).
 
 @app.context_processor
 def globals_():
-    return {'n_gotras': len(GOTRAS), 'n_pages': len(PAGES), 'chapters': CHAPTERS, 'to_roman': to_roman}
+    return {'n_gotras': len(GOTRAS), 'n_pages': len(PAGES), 'chapters': CHAPTERS, 'to_roman': to_roman,
+            'first_letter': LETTERS[0] if LETTERS else ''}
 
 
 @app.route('/')
@@ -135,21 +93,22 @@ def home():
     return render_template('home.html', booklet=BOOKLET)
 
 
-@app.route('/gotra')
+@app.route('/gotra/')
 def gotra_list():
-    q = request.args.get('q', '')
-    letter = request.args.get('letter', '')
-    if q:
-        items = match_gotras(q)
-    elif letter:
-        items = [g for g in GOTRAS if g['letter'] == letter]
-    else:
-        items = [g for g in GOTRAS if g['letter'] == LETTERS[0]] if LETTERS else []
-        letter = LETTERS[0] if LETTERS else ''
-    return render_template('gotra_list.html', items=items, q=q, letter=letter, letters=LETTERS)
+    if request.args.get('q'):  # old-style links
+        return redirect(url_for('search', q=request.args['q']))
+    return gotra_letter(request.args.get('letter') or LETTERS[0])
 
 
-@app.route('/gotra/<int:gid>')
+@app.route('/gotra/letter/<letter>/')
+def gotra_letter(letter):
+    items = [g for g in GOTRAS if g['letter'] == letter]
+    if not items:
+        abort(404)
+    return render_template('gotra_list.html', items=items, letter=letter, letters=LETTERS)
+
+
+@app.route('/gotra/<int:gid>/')
 def gotra_detail(gid):
     if not 0 <= gid < len(GOTRAS):
         abort(404)
@@ -161,47 +120,42 @@ def gotra_detail(gid):
                            pdf_page=BOOKLET['list_pdf_page'][str(g['page'])])
 
 
-@app.route('/gotra/random')
+@app.route('/gotra/random/')
 def gotra_random():
-    import random
-    return gotra_detail(random.randrange(len(GOTRAS)))
+    return render_template('random.html')
 
 
-@app.route('/itihas')
+@app.route('/itihas/')
 def itihas_home():
     return render_template('itihas_home.html')
 
 
-@app.route('/itihas/page/<int:pdf>')
+@app.route('/itihas/page/<int:pdf>/')
 def itihas_page(pdf):
     p = PAGE_BY_PDF.get(pdf)
     if not p:
         abort(404)
-    hl = request.args.get('hl', '').strip()
-    # split the text into (piece, is_match) so the template can <mark> matches safely
-    parts = [(x, x == hl) for x in re.split('(' + re.escape(hl) + ')', p['text'])] if hl else [(p['text'], False)]
-    return render_template('itihas_page.html', p=p, ch=chapter_of(pdf), parts=parts,
+    return render_template('itihas_page.html', p=p, ch=chapter_of(pdf),
                            prev=pdf - 1 if pdf - 1 in PAGE_BY_PDF else None,
                            next=pdf + 1 if pdf + 1 in PAGE_BY_PDF else None,
                            last=PAGES[-1]['pdf'])
 
 
-@app.route('/itihas/book-page')
-def itihas_book_page():
+@app.route('/itihas/book/<int:n>/')
+def itihas_book_page(n):
     """Jump by the page number printed in the book."""
-    n = request.args.get('n', type=int)
     for p in PAGES:
         if p['book'] == n:
-            return itihas_page(p['pdf'])
+            return render_template('redirect.html', to=url_for('itihas_page', pdf=p['pdf']))
     abort(404)
 
 
-@app.route('/booklet')
+@app.route('/booklet/')
 def booklet():
     return render_template('booklet.html', booklet=BOOKLET)
 
 
-@app.route('/booklet/page/<int:pdf>')
+@app.route('/booklet/page/<int:pdf>/')
 def booklet_page(pdf):
     if not 1 <= pdf <= BOOKLET['pdf_pages']:
         abort(404)
@@ -209,33 +163,27 @@ def booklet_page(pdf):
                            gotras=[g for g in GOTRAS if BOOKLET['list_pdf_page'].get(str(g['page'])) == pdf])
 
 
-@app.route('/search')
+@app.route('/search/')
 def search():
-    q = request.args.get('q', '').strip()
-    gotras = match_gotras(q, 300) if q else []
-    hits = search_itihas(q) if q else []
-    return render_template('search.html', q=q, gotras=gotras, hits=hits)
+    return render_template('search.html')
 
 
-@app.route('/about')
+@app.route('/about/')
 def about():
     return render_template('about.html', booklet=BOOKLET)
 
 
-# ---------- JSON API (used by the live search box) ----------
+# ---------- data for the in-browser search ----------
 
-@app.route('/api/gotras')
-def api_gotras():
-    q = request.args.get('q', '')
-    return jsonify([{'id': g['id'], 'name': g['name'], 'roman': g['roman'], 'page': g['page'],
-                     'url': url_for('gotra_detail', gid=g['id'])} for g in match_gotras(q, 30)])
+@app.route('/data/gotras.json')
+def data_gotras():
+    """[name, roman, sound key, devanagari key, page, alt names] per gotra; the list index is its id."""
+    return jsonify([[g['name'], g['roman'], g['skey'], g['dkey'], g['page'], g.get('alt', [])] for g in GOTRAS])
 
 
-@app.route('/api/search')
-def api_search():
-    q = request.args.get('q', '')
-    return jsonify([{'pdf': h['page']['pdf'], 'book': h['page']['book'], 'snip': h['snip'],
-                     'url': url_for('itihas_page', pdf=h['page']['pdf'], hl=q)} for h in search_itihas(q, 50)])
+@app.route('/data/itihas.json')
+def data_itihas():
+    return jsonify([[p['pdf'], p['book'], p['text']] for p in PAGES if p['text']])
 
 
 # ---------- scanned page images ----------
@@ -246,8 +194,8 @@ def open_pdf(book):
     return pymupdf.open(BOOKS[book])
 
 
-@app.route('/scan/<book>/<int:pdf>')
-def scan(book, pdf):
+@app.route('/scan/<book>/<int:pdf>.<ext>')
+def scan(book, pdf, ext):
     """Render one page of a scanned PDF (cached on disk after the first time).
     The booklet is a colour photo -> JPEG; the history is a black-and-white scan -> PNG."""
     import pymupdf
@@ -256,7 +204,8 @@ def scan(book, pdf):
     doc = open_pdf(book)
     if not 1 <= pdf <= doc.page_count:
         abort(404)
-    ext = 'png' if book == 'itihas' else 'jpg'
+    if ext != ('png' if book == 'itihas' else 'jpg'):
+        abort(404)
     path = os.path.join(CACHE, book, f'{pdf}.{ext}')
     if not os.path.exists(path):
         os.makedirs(os.path.dirname(path), exist_ok=True)

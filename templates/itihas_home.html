@@ -11,11 +11,11 @@
       <input name="q" placeholder="पुस्तक में खोजें: आमेर, खोह, चांदा, मत्स्य…">
       <button class="btn">खोजें</button>
     </form>
-    <form class="filter" action="{{ url_for('itihas_book_page') }}" style="margin-top:8px">
+    <form class="filter jump" style="margin-top:8px">
       <span>पृष्ठ संख्या पर जाएँ</span><input name="n" type="number" min="1" max="294" style="width:7em"><button class="btn ghost">जाएँ</button>
     </form>
   </div>
-  <a href="{{ url_for('itihas_page', pdf=3) }}"><img class="thumb scan itihas" style="max-width:300px" src="{{ url_for('scan', book='itihas', pdf=3) }}" alt="विषय-क्रम"></a>
+  <a href="{{ url_for('itihas_page', pdf=3) }}"><img class="thumb scan itihas" style="max-width:300px" src="{{ url_for('scan', book='itihas', ext='png', pdf=3) }}" alt="विषय-क्रम"></a>
 </div>
 <h2 style="margin-top:22px">विषय-क्रम <small>· Contents</small></h2>
 <div class="card">

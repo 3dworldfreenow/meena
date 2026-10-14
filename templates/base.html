@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
-<body>
+<body data-base="{{ request.script_root }}">
 <header class="top">
   <div class="wrap top-in">
     <a class="brand" href="{{ url_for('home') }}"><span class="fish">🐟</span> मीणा ग्रन्थ <small>Meena Books</small></a>
@@ -20,7 +20,7 @@
       <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="on"{% endif %}>परिचय <small>About</small></a>
     </nav>
     <form class="qs" action="{{ url_for('search') }}" autocomplete="off">
-      <input name="q" id="qs" placeholder="खोजें / Search: चौहान, Chauhan…" value="{{ q or '' }}" aria-label="Search">
+      <input name="q" id="qs" placeholder="खोजें / Search: चौहान, Chauhan…" aria-label="Search">
       <div class="suggest" id="suggest" hidden></div>
     </form>
     <button class="theme" id="theme" title="Light / dark" aria-label="Toggle theme">☾</button>

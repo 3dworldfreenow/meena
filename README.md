@@ -17,12 +17,17 @@ A small Flask website for two books about the Meena community:
   matches are highlighted, and the ← → keys turn pages.
 - Full-text search across both books. Light and dark themes. Works on phones.
 
-## Run it
+## Live website
+**https://3dworldfreenow.github.io/meena/** is rebuilt automatically on every push to `main`
+(see `.github/workflows/pages.yml`, which runs `tools/build_static.py`). All search runs in the browser, so the site is plain files.
+
+## Run it on your computer
 ```bash
 pip install -r requirements.txt
 python app.py            # http://127.0.0.1:5000
 ```
 Page images are rendered from the PDFs the first time they are viewed and then cached in `cache/`.
+To build the static site yourself: `python tools/build_static.py _site --base /meena`.
 
 ## Data
 | File | What |
